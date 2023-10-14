@@ -1,35 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { ThemeProvider, createTheme } from '@mui/material/styles'
+import SwapForm from './components/SwapForm'
+import { Box } from '@mui/system'
+
+const theme = createTheme({
+    palette: {
+        primary: {
+            main: '#291E54',
+        },
+        secondary: {
+            main: '#B024F2',
+        },
+        info: {
+            main: '#cecece',
+        },
+    },
+    typography: {
+        fontFamily: 'Poppins',
+    },
+})
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    return (
+        <ThemeProvider theme={theme}>
+            <Box
+                sx={{
+                    background:
+                        'radial-gradient(40% 50% at 50% 50%, #B024F2 0%, #291E54 100%)',
+                    width: '100vw',
+                    height: '100vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <SwapForm />
+            </Box>
+        </ThemeProvider>
+    )
 }
 
 export default App
