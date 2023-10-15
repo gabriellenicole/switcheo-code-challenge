@@ -1,12 +1,17 @@
 import { Box, Button, Input, Typography } from '@mui/material'
-import alphaIcon from '../../assets/token-icons/AAVE.svg'
 import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined'
 
 interface InputBlockProps {
+    tokenName: string
     convertUSD: number
+    handleChangeToken: () => void
 }
 
-export default function InputBlock({ convertUSD }: InputBlockProps) {
+export default function InputBlock({
+    tokenName,
+    convertUSD,
+    handleChangeToken,
+}: InputBlockProps) {
     return (
         <Box
             sx={{
@@ -31,17 +36,24 @@ export default function InputBlock({ convertUSD }: InputBlockProps) {
                         '&:hover': {
                             background: 'rgba(255, 255, 255, 0.2)',
                         },
+                        textTransform: 'none',
                     }}
                     color='info'
+                    onClick={handleChangeToken}
                 >
-                    <img src={alphaIcon} alt='icon' />
+                    <img
+                        src={`src/assets/token-icons/${tokenName}.svg`}
+                        alt='icon'
+                    />
                     <Typography
-                        variant='h6'
                         fontWeight={500}
                         color='primary'
                         marginLeft={0.5}
+                        sx={{
+                            fontSize: { xs: '14px', sm: '20px' },
+                        }}
                     >
-                        ALP
+                        {tokenName}
                     </Typography>
                     <ExpandMoreOutlinedIcon htmlColor='#2b2b2b' />
                 </Button>
@@ -57,9 +69,9 @@ export default function InputBlock({ convertUSD }: InputBlockProps) {
                     type='number'
                     disableUnderline={true}
                     sx={{
-                        fontSize: '32px',
+                        fontSize: { xs: '20px', sm: '32px' },
                         fontWeight: '500',
-                        width: '60%',
+
                         '& input': {
                             textAlign: 'right',
                         },
