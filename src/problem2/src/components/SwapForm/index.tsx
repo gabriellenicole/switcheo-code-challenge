@@ -3,10 +3,51 @@ import InputBlock from './InputBlock'
 import { FiberManualRecord, Refresh, SyncAlt } from '@mui/icons-material'
 import { useState } from 'react'
 import SearchToken from '../SearchToken'
+import { useTokenListStore } from '../../store/useTokenListStore'
+import { useTokenPrimaryStore } from '../../store/useTokenPrimaryStore'
+import { useTokenSecondaryStore } from '../../store/useTokenSecondaryStore'
 
 export default function SwapForm() {
+    const setSelectedToken = useTokenListStore(
+        (state) => state.setSelectedToken
+    )
+    const allInfoPrimary = useTokenPrimaryStore((state) => state)
+    const allInfoSecondary = useTokenSecondaryStore((state) => state)
+    const updateAllPrimary = useTokenPrimaryStore((state) => state.updateAll)
+    const updateAllSecondary = useTokenSecondaryStore(
+        (state) => state.updateAll
+    )
+    const tokenNamePrimary = useTokenPrimaryStore((state) => state.tokenName)
+    const tokenNameSecondary = useTokenSecondaryStore(
+        (state) => state.tokenName
+    )
+    // const tokenInputPrimary = useTokenPrimaryStore((state) => state.tokenInput)
+    // const tokenInputSecondary = useTokenSecondaryStore(
+    //     (state) => state.tokenInput
+    // )
     const [reverse, setReverse] = useState(false)
     const [isOpenModal, setIsOpenModal] = useState(false)
+
+    const handleReverse = () => {
+        setReverse(!reverse)
+        const tempPrimary = allInfoPrimary
+        updateAllPrimary({
+            tokenName: allInfoSecondary.tokenName,
+            tokenPrice: allInfoSecondary.tokenPrice,
+            tokenInput: allInfoSecondary.tokenInput,
+        })
+        updateAllSecondary({
+            tokenName: tempPrimary.tokenName,
+            tokenPrice: tempPrimary.tokenPrice,
+            tokenInput: tempPrimary.tokenInput,
+        })
+    }
+
+    // TO DELETE
+    // useEffect(() => {
+    //     console.log('primary', tokenInputPrimary)
+    //     console.log('secondary', tokenInputSecondary)
+    // }, [tokenInputPrimary, tokenInputSecondary])
 
     return (
         <Box
@@ -26,7 +67,7 @@ export default function SwapForm() {
             }}
         >
             <Modal open={isOpenModal} onClose={() => setIsOpenModal(false)}>
-                <SearchToken />
+                <SearchToken handleCloseModal={() => setIsOpenModal(false)} />
             </Modal>
             <Box
                 sx={{
@@ -64,9 +105,13 @@ export default function SwapForm() {
                 </Tooltip>
             </Box>
             <InputBlock
-                tokenName='ampLUNA'
+                type='primary'
+                tokenName={tokenNamePrimary}
                 convertUSD={2355.92}
-                handleChangeToken={() => setIsOpenModal(true)}
+                handleChangeToken={() => {
+                    setSelectedToken('primary')
+                    setIsOpenModal(true)
+                }}
             />
             <Box
                 sx={{
@@ -107,14 +152,18 @@ export default function SwapForm() {
                             transition: 'all .2s ease-in-out',
                             transform: reverse ? 'rotate(180deg)' : '',
                         }}
-                        onClick={() => setReverse(!reverse)}
+                        onClick={handleReverse}
                     />
                 </Tooltip>
             </Box>
             <InputBlock
-                tokenName='AAVE'
+                type='secondary'
+                tokenName={tokenNameSecondary}
                 convertUSD={2345.45}
-                handleChangeToken={() => setIsOpenModal(true)}
+                handleChangeToken={() => {
+                    setSelectedToken('secondary')
+                    setIsOpenModal(true)
+                }}
             />
             <Button
                 sx={{

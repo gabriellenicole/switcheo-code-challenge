@@ -1,10 +1,24 @@
+import { useEffect, useState } from 'react'
 import { Close } from '@mui/icons-material'
 import { Grid, TextField, Typography } from '@mui/material'
 import { useTokenListStore } from '../../store/useTokenListStore'
 import TokenName from './TokenName'
 
-export default function SearchToken() {
+interface searchTokenProps {
+    handleCloseModal: () => void
+}
+
+export default function SearchToken({ handleCloseModal }: searchTokenProps) {
     const tokenList = useTokenListStore((state) => state.tokenList)
+    const [localTokenList, setLocalTokenList] = useState(tokenList)
+    const [searchInput, setSearchInput] = useState('')
+
+    useEffect(() => {
+        const filteredTokenList = tokenList.filter((name) => {
+            return name.toLowerCase().includes(searchInput.toLowerCase())
+        })
+        setLocalTokenList(filteredTokenList)
+    }, [searchInput, tokenList])
     return (
         <Grid
             container
@@ -57,12 +71,21 @@ export default function SearchToken() {
                                 borderColor: '#B024F2',
                             },
                     }}
+                    value={searchInput}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                        setSearchInput(event.target.value)
+                    }}
                 />
             </Grid>
             {/* Modal Token List */}
             <Grid item sx={{ overflow: 'auto', height: 330 }}>
-                {tokenList.map((name) => {
-                    return <TokenName tokenName={name} />
+                {localTokenList.map((name) => {
+                    return (
+                        <TokenName
+                            handleCloseModal={handleCloseModal}
+                            tokenName={name}
+                        />
+                    )
                 })}
             </Grid>
         </Grid>
