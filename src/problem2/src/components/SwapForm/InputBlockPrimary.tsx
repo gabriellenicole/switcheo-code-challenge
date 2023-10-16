@@ -1,14 +1,22 @@
-import { Box, Button, Input, Typography } from '@mui/material'
+import { Box, Button, Input, Skeleton, Typography } from '@mui/material'
 import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined'
 import { useTokenPrimaryStore } from '../../store/useTokenPrimaryStore'
 import { useTokenListStore } from '../../store/useTokenListStore'
 import { useTokenSecondaryStore } from '../../store/useTokenSecondaryStore'
 import { getExchangeRateAPI, getTokenPriceAPI } from '../../api/initial'
-import { useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import debounce from 'lodash.debounce'
 
 interface InputBlockProps {
     tokenName: string
     handleChangeToken: () => void
+}
+
+interface GetExchangeRateProps {
+    tokenNamePrimary: string
+    tokenNameSecondary: string
+    tokenInput: string
+    focusToken: 'primary' | 'secondary'
 }
 
 export default function InputBlockPrimary({
@@ -41,6 +49,7 @@ export default function InputBlockPrimary({
     const setLoadingSecondary = useTokenSecondaryStore(
         (state) => state.setIsLoading
     )
+    const [priceLoading, setPriceLoading] = useState(false)
 
     // focus state
     const focusToken = useTokenListStore((state) => state.focusToken)
@@ -53,7 +62,19 @@ export default function InputBlockPrimary({
         return true
     }
 
-    const getExchangeRate = async () => {
+    const getExchangeRate = async ({
+        tokenNamePrimary,
+        tokenNameSecondary,
+        tokenInput,
+        focusToken,
+    }: GetExchangeRateProps) => {
+        console.log(
+            tokenNamePrimary,
+            tokenNameSecondary,
+            tokenInput,
+            focusToken
+        )
+        console.log(isProcessValid())
         if (focusToken === 'primary' && isProcessValid()) {
             try {
                 setLoadingSecondary(true)
@@ -81,14 +102,20 @@ export default function InputBlockPrimary({
         }
     }
 
-    const getPrice = async () => {
-        try {
-            const priceUSD = await getTokenPriceAPI(tokenNamePrimary)
-            setTokenPrice(Number((Number(tokenInput) * priceUSD).toFixed(5)))
-        } catch (err) {
-            console.log(err)
-        }
-    }
+    const debouncedGetPrice = debounce(
+        async (input: number, tokenName: string) => {
+            setPriceLoading(true)
+            const priceUSD = await getTokenPriceAPI(tokenName)
+            setTokenPrice(Number((input * priceUSD).toFixed(5)))
+            setPriceLoading(false)
+        },
+        500
+    )
+    const callbackGetPrice = useCallback(
+        (input: number, tokenName: string) =>
+            debouncedGetPrice(input, tokenName),
+        []
+    )
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setTokenInputPrimary(event.target.value)
@@ -96,11 +123,17 @@ export default function InputBlockPrimary({
     }
 
     useEffect(() => {
-        getExchangeRate()
+        getExchangeRate({
+            tokenNamePrimary,
+            tokenNameSecondary,
+            tokenInput,
+            focusToken,
+        })
     }, [tokenNamePrimary, tokenNameSecondary, tokenInput, focusToken])
 
     useEffect(() => {
-        getPrice()
+        if (tokenInput.length !== 0 && tokenNamePrimary !== '')
+            callbackGetPrice(Number(tokenInput), tokenNamePrimary)
     }, [tokenInput, tokenNamePrimary])
 
     return (
@@ -108,11 +141,13 @@ export default function InputBlockPrimary({
             sx={{
                 backgroundColor: 'rgba(255, 255, 255, 0.7)',
                 width: '100%',
+                height: 110,
                 paddingX: 3,
                 paddingY: 2,
                 borderRadius: 2,
                 display: 'flex',
                 justifyContent: 'space-between',
+                alignItems: 'center',
                 opacity: isLoadingPrimary ? '0.8' : '',
             }}
         >
@@ -196,9 +231,21 @@ export default function InputBlockPrimary({
                     value={tokenInput}
                     onChange={handleChange}
                 ></Input>
-                <Typography variant='body2' color='primary'>
-                    ${tokenPrice}
-                </Typography>
+                {priceLoading ? (
+                    <Box sx={{ width: 80 }}>
+                        <Skeleton animation='wave' />
+                    </Box>
+                ) : (
+                    <>
+                        {tokenPrice ? (
+                            <Typography variant='body2' color='primary'>
+                                ${tokenPrice}
+                            </Typography>
+                        ) : (
+                            ''
+                        )}
+                    </>
+                )}
             </Box>
         </Box>
     )

@@ -25,10 +25,12 @@ const getTokenPriceAPI = async (tokenName: string) => {
     const response = await axios.get(
         'https://interview.switcheo.com/prices.json'
     )
-    delay(2000) // mock delay for simulating backend
+    await delay(1000) // mock delay for simulating backend
     const tokenList = response.data
     for (const token of tokenList) {
-        if (token.currency == tokenName) return token.price
+        if (token.currency == tokenName) {
+            return token.price
+        }
     }
 }
 
