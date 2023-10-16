@@ -19,10 +19,10 @@ export default function TokenName({ tokenName, handleCloseModal }: TokenName) {
     return (
         <Box
             onClick={() => {
-                handleCloseModal()
                 selectedToken === 'primary'
                     ? setTokenNamePrimary(tokenName)
                     : setTokenNameSecondary(tokenName)
+                handleCloseModal()
             }}
         >
             <List

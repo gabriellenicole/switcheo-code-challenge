@@ -43,7 +43,12 @@ export default function SearchToken({ handleCloseModal }: searchTokenProps) {
                     <Grid item xs={11.5}>
                         <Typography variant='h6'>Select a Token</Typography>
                     </Grid>
-                    <Grid item xs={0.5} sx={{ marginRight: '0' }}>
+                    <Grid
+                        item
+                        xs={0.5}
+                        sx={{ marginRight: '0' }}
+                        onClick={handleCloseModal}
+                    >
                         <Close color='secondary' />
                     </Grid>
                 </Grid>

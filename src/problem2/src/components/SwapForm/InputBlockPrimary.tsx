@@ -1,24 +1,33 @@
 import { Box, Button, Input, Typography } from '@mui/material'
 import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined'
 import { useTokenPrimaryStore } from '../../store/useTokenPrimaryStore'
+import { useTokenListStore } from '../../store/useTokenListStore'
 import { useTokenSecondaryStore } from '../../store/useTokenSecondaryStore'
+import { getExchangeRateAPI, getTokenPriceAPI } from '../../api/initial'
+import { useEffect } from 'react'
 
 interface InputBlockProps {
-    type: 'primary' | 'secondary'
     tokenName: string
-    convertUSD: number
     handleChangeToken: () => void
 }
 
-export default function InputBlock({
-    type,
+export default function InputBlockPrimary({
     tokenName,
-    convertUSD,
     handleChangeToken,
 }: InputBlockProps) {
-    const tokenInputPrimary = useTokenPrimaryStore((state) => state.tokenInput)
+    // token info state
+    const tokenInput = useTokenPrimaryStore((state) => state.tokenInput)
     const tokenInputSecondary = useTokenSecondaryStore(
         (state) => state.tokenInput
+    )
+    const tokenPrice = useTokenPrimaryStore((state) => state.tokenPrice)
+    const tokenNamePrimary = useTokenPrimaryStore((state) => state.tokenName)
+    const tokenNameSecondary = useTokenSecondaryStore(
+        (state) => state.tokenName
+    )
+    const setTokenPrice = useTokenPrimaryStore((state) => state.setTokenPrice)
+    const setTokenPriceSecondary = useTokenSecondaryStore(
+        (state) => state.setTokenPrice
     )
     const setTokenInputPrimary = useTokenPrimaryStore(
         (state) => state.setTokenInput
@@ -26,6 +35,74 @@ export default function InputBlock({
     const setTokenInputSecondary = useTokenSecondaryStore(
         (state) => state.setTokenInput
     )
+
+    // loading state
+    const isLoadingPrimary = useTokenPrimaryStore((state) => state.isLoading)
+    const setLoadingSecondary = useTokenSecondaryStore(
+        (state) => state.setIsLoading
+    )
+
+    // focus state
+    const focusToken = useTokenListStore((state) => state.focusToken)
+    const setFocusToken = useTokenListStore((state) => state.setFocusToken)
+    const setExchangeRate = useTokenListStore((state) => state.setExchangeRate)
+
+    const isProcessValid = () => {
+        if (tokenNamePrimary == '' || tokenNameSecondary == '') return false
+        if (tokenInput === '') return false
+        return true
+    }
+
+    const getExchangeRate = async () => {
+        if (focusToken === 'primary' && isProcessValid()) {
+            try {
+                setLoadingSecondary(true)
+                const exchangeRateData = await getExchangeRateAPI(
+                    tokenNamePrimary,
+                    tokenNameSecondary
+                )
+                setExchangeRate(
+                    `1 ${tokenNamePrimary} ~ ${exchangeRateData.toFixed(
+                        5
+                    )} ${tokenNameSecondary}`
+                )
+                setTokenInputSecondary(
+                    (Number(tokenInput) * exchangeRateData).toFixed(5)
+                )
+                const priceUSD = await getTokenPriceAPI(tokenNamePrimary)
+                setTokenPriceSecondary(
+                    Number((Number(tokenInputSecondary) * priceUSD).toFixed(5))
+                )
+            } catch (err) {
+                console.log(err)
+            } finally {
+                setLoadingSecondary(false)
+            }
+        }
+    }
+
+    const getPrice = async () => {
+        try {
+            const priceUSD = await getTokenPriceAPI(tokenNamePrimary)
+            setTokenPrice(Number((Number(tokenInput) * priceUSD).toFixed(5)))
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setTokenInputPrimary(event.target.value)
+        setFocusToken('primary')
+    }
+
+    useEffect(() => {
+        getExchangeRate()
+    }, [tokenNamePrimary, tokenNameSecondary, tokenInput, focusToken])
+
+    useEffect(() => {
+        getPrice()
+    }, [tokenInput, tokenNamePrimary])
+
     return (
         <Box
             sx={{
@@ -36,6 +113,7 @@ export default function InputBlock({
                 borderRadius: 2,
                 display: 'flex',
                 justifyContent: 'space-between',
+                opacity: isLoadingPrimary ? '0.8' : '',
             }}
         >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -115,19 +193,11 @@ export default function InputBlock({
                             },
                     }}
                     placeholder='0'
-                    value={
-                        type === 'primary'
-                            ? tokenInputPrimary
-                            : tokenInputSecondary
-                    }
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                        type === 'primary'
-                            ? setTokenInputPrimary(Number(event.target.value))
-                            : setTokenInputSecondary(Number(event.target.value))
-                    }}
+                    value={tokenInput}
+                    onChange={handleChange}
                 ></Input>
                 <Typography variant='body2' color='primary'>
-                    ${convertUSD.toLocaleString()}
+                    ${tokenPrice}
                 </Typography>
             </Box>
         </Box>
