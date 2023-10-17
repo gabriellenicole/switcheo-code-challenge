@@ -65,7 +65,7 @@ export default function TokenName({ tokenName, handleCloseModal }: TokenName) {
                     <ListItemText sx={{ marginLeft: 2 }} primary={tokenName} />
                 </ListItem>
             </List>
-            <Divider sx={{ bgcolor: 'primary' }} />
+            <Divider />
         </Box>
     )
 }

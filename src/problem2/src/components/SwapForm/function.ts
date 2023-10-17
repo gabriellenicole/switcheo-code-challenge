@@ -8,4 +8,20 @@ const isProcessValid = (
     return true
 }
 
-export { isProcessValid }
+const checkInvalidForm = (
+    tokenInputPrimary: string,
+    tokenInputSecondary: string,
+    tokenNamePrimary: string,
+    tokenNameSecondary: string
+): string => {
+    if (tokenNamePrimary === '') {
+        return 'Please select PAID token currency'
+    } else if (tokenNameSecondary === '') {
+        return 'Please select RECEIVED token currency'
+    } else if (tokenInputPrimary === '' || tokenInputSecondary === '') {
+        return 'Please fill the amount to swap'
+    }
+    return ''
+}
+
+export { isProcessValid, checkInvalidForm }

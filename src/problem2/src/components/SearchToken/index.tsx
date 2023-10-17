@@ -87,6 +87,7 @@ export default function SearchToken({ handleCloseModal }: searchTokenProps) {
                 {localTokenList.map((name) => {
                     return (
                         <TokenName
+                            key={name}
                             handleCloseModal={handleCloseModal}
                             tokenName={name}
                         />

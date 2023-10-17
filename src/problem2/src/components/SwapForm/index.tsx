@@ -8,7 +8,10 @@ import SwapRate from './SwapRate'
 import InputBlockPrimary from './InputBlockPrimary'
 import InputBlockSecondary from './InputBlockSecondary'
 
-export default function SwapForm() {
+interface SwapFormProps {
+    submitForm: () => void
+}
+export default function SwapForm({ submitForm }: SwapFormProps) {
     const setSelectedToken = useTokenListStore(
         (state) => state.setSelectedToken
     )
@@ -16,7 +19,12 @@ export default function SwapForm() {
     const tokenNameSecondary = useTokenSecondaryStore(
         (state) => state.tokenName
     )
+    const isLoadingPrimary = useTokenPrimaryStore((state) => state.isLoading)
+    const isLoadingSecondary = useTokenSecondaryStore(
+        (state) => state.isLoading
+    )
     const [isOpenModal, setIsOpenModal] = useState(false)
+
     return (
         <Box
             sx={{
@@ -35,7 +43,11 @@ export default function SwapForm() {
             }}
         >
             <Modal open={isOpenModal} onClose={() => setIsOpenModal(false)}>
-                <SearchToken handleCloseModal={() => setIsOpenModal(false)} />
+                <>
+                    <SearchToken
+                        handleCloseModal={() => setIsOpenModal(false)}
+                    />
+                </>
             </Modal>
 
             <Typography
@@ -79,6 +91,8 @@ export default function SwapForm() {
                     fontSize: '16px',
                 }}
                 color='primary'
+                onClick={submitForm}
+                disabled={isLoadingPrimary || isLoadingSecondary}
             >
                 Confirm Swap
             </Button>

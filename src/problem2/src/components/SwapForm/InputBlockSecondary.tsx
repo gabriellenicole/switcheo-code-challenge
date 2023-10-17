@@ -125,7 +125,6 @@ export default function InputBlockSecondary({
         <Box
             sx={{
                 backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                width: 600,
                 height: 110,
                 paddingX: 3,
                 paddingY: 2,

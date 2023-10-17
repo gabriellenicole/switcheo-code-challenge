@@ -1,16 +1,15 @@
 import axios from 'axios'
 
-const getInitialTokenList = async () => {
+const getInitialTokenList = async (): Promise<string[]> => {
     const response = await axios.get(
         'https://interview.switcheo.com/prices.json'
     )
     const tokenList = response.data
-    const tokenName = []
+    const tokenName = new Set<string>()
     for (const token of tokenList) {
-        if (token.currency == tokenName[tokenName.length - 1]) continue
-        tokenName.push(token.currency)
+        tokenName.add(token.currency)
     }
-    return tokenName
+    return Array.from(tokenName)
 }
 
 async function delay(milliseconds: number): Promise<void> {
@@ -21,7 +20,7 @@ async function delay(milliseconds: number): Promise<void> {
     })
 }
 
-const getTokenPriceAPI = async (tokenName: string) => {
+const getTokenPriceAPI = async (tokenName: string): Promise<number> => {
     const response = await axios.get(
         'https://interview.switcheo.com/prices.json'
     )
@@ -32,6 +31,7 @@ const getTokenPriceAPI = async (tokenName: string) => {
             return token.price
         }
     }
+    return 0
 }
 
 const getExchangeRateAPI = async (
