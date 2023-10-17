@@ -3,7 +3,7 @@ import { Box } from '@mui/system'
 import SwapForm from './components/SwapForm'
 import { theme } from './utils/theme'
 import { useEffect } from 'react'
-import { getInitialTokenList } from './api/initial'
+import { getInitialTokenList } from './api'
 import { useTokenListStore } from './store/useTokenListStore'
 
 function App() {

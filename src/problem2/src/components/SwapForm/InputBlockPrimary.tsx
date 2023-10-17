@@ -3,79 +3,58 @@ import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined'
 import { useTokenPrimaryStore } from '../../store/useTokenPrimaryStore'
 import { useTokenListStore } from '../../store/useTokenListStore'
 import { useTokenSecondaryStore } from '../../store/useTokenSecondaryStore'
-import { getExchangeRateAPI, getTokenPriceAPI } from '../../api/initial'
+import { getExchangeRateAPI, getTokenPriceAPI } from '../../api'
+import { isProcessValid } from './function'
 import { useCallback, useEffect, useState } from 'react'
 import debounce from 'lodash.debounce'
+import { formatDecimal } from '../../utils/formatter'
 
 interface InputBlockProps {
     tokenName: string
     handleChangeToken: () => void
 }
 
-interface GetExchangeRateProps {
-    tokenNamePrimary: string
-    tokenNameSecondary: string
-    tokenInput: string
-    focusToken: 'primary' | 'secondary'
-}
-
 export default function InputBlockPrimary({
     tokenName,
     handleChangeToken,
 }: InputBlockProps) {
-    // token info state
+    // primary state
     const tokenInput = useTokenPrimaryStore((state) => state.tokenInput)
+    const tokenPrice = useTokenPrimaryStore((state) => state.tokenPrice)
+    const tokenNamePrimary = useTokenPrimaryStore((state) => state.tokenName)
+    const isLoading = useTokenPrimaryStore((state) => state.isLoading)
+    const setTokenPrice = useTokenPrimaryStore((state) => state.setTokenPrice)
+    const setTokenInput = useTokenPrimaryStore((state) => state.setTokenInput)
+
+    // secondary state
     const tokenInputSecondary = useTokenSecondaryStore(
         (state) => state.tokenInput
     )
-    const tokenPrice = useTokenPrimaryStore((state) => state.tokenPrice)
-    const tokenNamePrimary = useTokenPrimaryStore((state) => state.tokenName)
     const tokenNameSecondary = useTokenSecondaryStore(
         (state) => state.tokenName
     )
-    const setTokenPrice = useTokenPrimaryStore((state) => state.setTokenPrice)
     const setTokenPriceSecondary = useTokenSecondaryStore(
         (state) => state.setTokenPrice
-    )
-    const setTokenInputPrimary = useTokenPrimaryStore(
-        (state) => state.setTokenInput
     )
     const setTokenInputSecondary = useTokenSecondaryStore(
         (state) => state.setTokenInput
     )
-
-    // loading state
-    const isLoadingPrimary = useTokenPrimaryStore((state) => state.isLoading)
     const setLoadingSecondary = useTokenSecondaryStore(
         (state) => state.setIsLoading
     )
-    const [priceLoading, setPriceLoading] = useState(false)
 
-    // focus state
+    // general state
     const focusToken = useTokenListStore((state) => state.focusToken)
     const setFocusToken = useTokenListStore((state) => state.setFocusToken)
     const setExchangeRate = useTokenListStore((state) => state.setExchangeRate)
 
-    const isProcessValid = () => {
-        if (tokenNamePrimary == '' || tokenNameSecondary == '') return false
-        if (tokenInput === '') return false
-        return true
-    }
+    const [priceLoading, setPriceLoading] = useState(false)
 
-    const getExchangeRate = async ({
-        tokenNamePrimary,
-        tokenNameSecondary,
-        tokenInput,
-        focusToken,
-    }: GetExchangeRateProps) => {
-        console.log(
-            tokenNamePrimary,
-            tokenNameSecondary,
-            tokenInput,
-            focusToken
-        )
-        console.log(isProcessValid())
-        if (focusToken === 'primary' && isProcessValid()) {
+    const getExchangeRate = async (input: string) => {
+        if (
+            focusToken === 'primary' &&
+            isProcessValid(tokenNamePrimary, tokenNameSecondary, input)
+        ) {
             try {
                 setLoadingSecondary(true)
                 const exchangeRateData = await getExchangeRateAPI(
@@ -83,16 +62,18 @@ export default function InputBlockPrimary({
                     tokenNameSecondary
                 )
                 setExchangeRate(
-                    `1 ${tokenNamePrimary} ~ ${exchangeRateData.toFixed(
-                        5
+                    `1 ${tokenNamePrimary} ~ ${formatDecimal(
+                        exchangeRateData
                     )} ${tokenNameSecondary}`
                 )
                 setTokenInputSecondary(
-                    (Number(tokenInput) * exchangeRateData).toFixed(5)
+                    formatDecimal(Number(input) * exchangeRateData, 5)
                 )
-                const priceUSD = await getTokenPriceAPI(tokenNamePrimary)
+                const priceUSD = await getTokenPriceAPI(tokenNameSecondary)
                 setTokenPriceSecondary(
-                    Number((Number(tokenInputSecondary) * priceUSD).toFixed(5))
+                    Number(
+                        formatDecimal(Number(tokenInputSecondary) * priceUSD)
+                    )
                 )
             } catch (err) {
                 console.log(err)
@@ -102,45 +83,53 @@ export default function InputBlockPrimary({
         }
     }
 
-    const debouncedGetPrice = debounce(
-        async (input: number, tokenName: string) => {
+    const getPrice = async (input: number) => {
+        try {
             setPriceLoading(true)
             const priceUSD = await getTokenPriceAPI(tokenName)
-            setTokenPrice(Number((input * priceUSD).toFixed(5)))
+            setTokenPrice(Number(formatDecimal(input * priceUSD)))
+        } catch (err) {
+            console.log(err)
+        } finally {
             setPriceLoading(false)
-        },
-        500
-    )
-    const callbackGetPrice = useCallback(
-        (input: number, tokenName: string) =>
-            debouncedGetPrice(input, tokenName),
-        []
-    )
-
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setTokenInputPrimary(event.target.value)
-        setFocusToken('primary')
+        }
     }
 
+    const debouncedGetExchange = debounce(async (input: string) => {
+        await getExchangeRate(input)
+    }, 500)
+    const callbackGetExchange = useCallback(
+        (input: string) => debouncedGetExchange(input),
+        [tokenNamePrimary, tokenNameSecondary, focusToken]
+    )
+
+    const debouncedGetPrice = debounce(async (input: number) => {
+        await getPrice(input)
+    }, 500)
+    const callbackGetPrice = useCallback(
+        (input: number) => debouncedGetPrice(input),
+        [tokenNamePrimary]
+    )
+
     useEffect(() => {
-        getExchangeRate({
-            tokenNamePrimary,
-            tokenNameSecondary,
-            tokenInput,
-            focusToken,
-        })
+        callbackGetExchange(tokenInput)
     }, [tokenNamePrimary, tokenNameSecondary, tokenInput, focusToken])
 
     useEffect(() => {
         if (tokenInput.length !== 0 && tokenNamePrimary !== '')
-            callbackGetPrice(Number(tokenInput), tokenNamePrimary)
+            callbackGetPrice(Number(tokenInput))
     }, [tokenInput, tokenNamePrimary])
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setTokenInput(event.target.value)
+        setFocusToken('primary')
+    }
 
     return (
         <Box
             sx={{
                 backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                width: '100%',
+                width: 600,
                 height: 110,
                 paddingX: 3,
                 paddingY: 2,
@@ -148,7 +137,7 @@ export default function InputBlockPrimary({
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                opacity: isLoadingPrimary ? '0.8' : '',
+                opacity: isLoading ? '0.8' : '',
             }}
         >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -165,6 +154,7 @@ export default function InputBlockPrimary({
                         },
                         textTransform: 'none',
                     }}
+                    disabled={isLoading}
                     color='info'
                     onClick={handleChangeToken}
                 >
@@ -212,37 +202,47 @@ export default function InputBlockPrimary({
                     alignItems: 'flex-end',
                 }}
             >
-                <Input
-                    type='number'
-                    disableUnderline={true}
-                    sx={{
-                        fontSize: { xs: '20px', sm: '32px' },
-                        fontWeight: '500',
-
-                        '& input': {
-                            textAlign: 'right',
-                        },
-                        '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button':
-                            {
-                                display: 'none',
-                            },
-                    }}
-                    placeholder='0'
-                    value={tokenInput}
-                    onChange={handleChange}
-                ></Input>
-                {priceLoading ? (
-                    <Box sx={{ width: 80 }}>
-                        <Skeleton animation='wave' />
-                    </Box>
+                {isLoading ? (
+                    <>
+                        <Skeleton
+                            variant='rounded'
+                            animation='wave'
+                            width={200}
+                            height={50}
+                        />
+                        <Skeleton animation='wave' width={80} />
+                    </>
                 ) : (
                     <>
-                        {tokenPrice ? (
-                            <Typography variant='body2' color='primary'>
-                                ${tokenPrice}
-                            </Typography>
+                        <Input
+                            type='number'
+                            disableUnderline={true}
+                            sx={{
+                                fontSize: { xs: '20px', sm: '32px' },
+                                fontWeight: '500',
+
+                                '& input': {
+                                    textAlign: 'right',
+                                },
+                                '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button':
+                                    {
+                                        display: 'none',
+                                    },
+                            }}
+                            placeholder='0'
+                            value={tokenInput}
+                            onChange={handleChange}
+                        />
+                        {priceLoading ? (
+                            <Box sx={{ width: 80 }}>
+                                <Skeleton animation='wave' />
+                            </Box>
                         ) : (
-                            ''
+                            <>
+                                <Typography variant='body2' color='primary'>
+                                    ${tokenPrice}
+                                </Typography>
+                            </>
                         )}
                     </>
                 )}

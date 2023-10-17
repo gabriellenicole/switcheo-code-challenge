@@ -55,7 +55,7 @@ const getExchangeRateAPI = async (
             tokenPriceFollow = token.price
         }
     }
-    return tokenPriceFollow / tokenPriceFocus
+    return tokenPriceFocus / tokenPriceFollow
 }
 
 export { getInitialTokenList, getTokenPriceAPI, getExchangeRateAPI }
