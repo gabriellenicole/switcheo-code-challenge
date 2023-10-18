@@ -20,7 +20,7 @@ Please submit your solution using the files provided in the skeletal repo, inclu
 1. Install dependencies using npm:
 
 ```bash
-  npm run install
+  npm install
 ```
 2. Start the development server:
 ```bash
