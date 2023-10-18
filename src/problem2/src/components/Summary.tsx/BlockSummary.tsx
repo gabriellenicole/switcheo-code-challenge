@@ -25,9 +25,7 @@ export default function BlockSummary({
             <Typography variant='h6' fontWeight={500}>
                 {isPay ? 'You Pay' : 'You Receive'}
             </Typography>
-            <Divider
-                sx={{ width: '100%', marginBottom: 1, borderStyle: 'dashed' }}
-            />
+            <Divider sx={{ width: '100%', marginBottom: 1, borderStyle: 'dashed' }} />
             <Box
                 sx={{
                     display: 'flex',
@@ -47,9 +45,7 @@ export default function BlockSummary({
                     marginBottom: 1,
                 }}
             >
-                <Typography variant='body2'>
-                    {isPay ? 'Total Paid' : 'Total Received'}
-                </Typography>
+                <Typography variant='body2'>{isPay ? 'Total Paid' : 'Total Received'}</Typography>
                 <Typography variant='body2'>{tokenInput}</Typography>
             </Box>
             <Box
@@ -61,9 +57,7 @@ export default function BlockSummary({
                 }}
             >
                 <Typography variant='body2'>Price in USD</Typography>
-                <Typography variant='body2'>
-                    {formatDecimal(tokenPrice)}
-                </Typography>
+                <Typography variant='body2'>{formatDecimal(tokenPrice)}</Typography>
             </Box>
         </Box>
     )

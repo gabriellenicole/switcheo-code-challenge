@@ -10,17 +10,11 @@ interface TokenName {
 }
 
 export default function TokenName({ tokenName, handleCloseModal }: TokenName) {
-    const setTokenNamePrimary = useTokenPrimaryStore(
-        (state) => state.setTokenName
-    )
-    const setTokenNameSecondary = useTokenSecondaryStore(
-        (state) => state.setTokenName
-    )
+    const setTokenNamePrimary = useTokenPrimaryStore((state) => state.setTokenName)
+    const setTokenNameSecondary = useTokenSecondaryStore((state) => state.setTokenName)
     const selectedToken = useTokenListStore((state) => state.selectedToken)
     const tokenNamePrimary = useTokenPrimaryStore((state) => state.tokenName)
-    const tokenNameSecondary = useTokenSecondaryStore(
-        (state) => state.tokenName
-    )
+    const tokenNameSecondary = useTokenSecondaryStore((state) => state.tokenName)
 
     const [isDisabledToken, setIsDisabledToken] = useState(false)
 
@@ -57,11 +51,7 @@ export default function TokenName({ tokenName, handleCloseModal }: TokenName) {
                 }}
             >
                 <ListItem>
-                    <img
-                        height={30}
-                        width={30}
-                        src={`src/assets/token-icons/${tokenName}.svg`}
-                    />
+                    <img height={30} width={30} src={`src/assets/token-icons/${tokenName}.svg`} />
                     <ListItemText sx={{ marginLeft: 2 }} primary={tokenName} />
                 </ListItem>
             </List>

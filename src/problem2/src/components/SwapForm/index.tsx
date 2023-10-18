@@ -12,17 +12,11 @@ interface SwapFormProps {
     submitForm: () => void
 }
 export default function SwapForm({ submitForm }: SwapFormProps) {
-    const setSelectedToken = useTokenListStore(
-        (state) => state.setSelectedToken
-    )
+    const setSelectedToken = useTokenListStore((state) => state.setSelectedToken)
     const tokenNamePrimary = useTokenPrimaryStore((state) => state.tokenName)
-    const tokenNameSecondary = useTokenSecondaryStore(
-        (state) => state.tokenName
-    )
+    const tokenNameSecondary = useTokenSecondaryStore((state) => state.tokenName)
     const isLoadingPrimary = useTokenPrimaryStore((state) => state.isLoading)
-    const isLoadingSecondary = useTokenSecondaryStore(
-        (state) => state.isLoading
-    )
+    const isLoadingSecondary = useTokenSecondaryStore((state) => state.isLoading)
     const [isOpenModal, setIsOpenModal] = useState(false)
 
     return (
@@ -44,9 +38,7 @@ export default function SwapForm({ submitForm }: SwapFormProps) {
         >
             <Modal open={isOpenModal} onClose={() => setIsOpenModal(false)}>
                 <>
-                    <SearchToken
-                        handleCloseModal={() => setIsOpenModal(false)}
-                    />
+                    <SearchToken handleCloseModal={() => setIsOpenModal(false)} />
                 </>
             </Modal>
 

@@ -7,19 +7,18 @@ import { useTokenListStore } from '../../store/useTokenListStore'
 
 export default function SwapRate() {
     const [reverse, setReverse] = useState(false)
+    // primary state
     const allInfoPrimary = useTokenPrimaryStore((state) => state)
-    const allInfoSecondary = useTokenSecondaryStore((state) => state)
     const updateAllPrimary = useTokenPrimaryStore((state) => state.updateAll)
-    const updateAllSecondary = useTokenSecondaryStore(
-        (state) => state.updateAll
-    )
+    const isLoadingPrimary = useTokenPrimaryStore((state) => state.isLoading)
+    // secondary state
+    const allInfoSecondary = useTokenSecondaryStore((state) => state)
+    const updateAllSecondary = useTokenSecondaryStore((state) => state.updateAll)
+    const isLoadingSecondary = useTokenSecondaryStore((state) => state.isLoading)
+    // general state
     const focusToken = useTokenListStore((state) => state.focusToken)
     const setFocusToken = useTokenListStore((state) => state.setFocusToken)
     const exchangeRate = useTokenListStore((state) => state.exchangeRate)
-    const isLoadingPrimary = useTokenPrimaryStore((state) => state.isLoading)
-    const isLoadingSecondary = useTokenSecondaryStore(
-        (state) => state.isLoading
-    )
 
     const handleReverse = () => {
         setReverse(!reverse)
@@ -69,10 +68,7 @@ export default function SwapRate() {
                         </Typography>
                     </Box>
 
-                    <Tooltip
-                        title={'Swap "paid" and "received" token'}
-                        placement='right'
-                    >
+                    <Tooltip title={'Swap "paid" and "received" token'} placement='right'>
                         <SyncAlt
                             color='info'
                             sx={{

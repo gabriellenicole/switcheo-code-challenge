@@ -43,12 +43,7 @@ export default function SearchToken({ handleCloseModal }: searchTokenProps) {
                     <Grid item xs={11.5}>
                         <Typography variant='h6'>Select a Token</Typography>
                     </Grid>
-                    <Grid
-                        item
-                        xs={0.5}
-                        sx={{ marginRight: '0' }}
-                        onClick={handleCloseModal}
-                    >
+                    <Grid item xs={0.5} sx={{ marginRight: '0' }} onClick={handleCloseModal}>
                         <Close color='secondary' />
                     </Grid>
                 </Grid>
@@ -71,10 +66,9 @@ export default function SearchToken({ handleCloseModal }: searchTokenProps) {
                         '& .MuiOutlinedInput-notchedOutline': {
                             borderColor: 'white',
                         },
-                        '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline':
-                            {
-                                borderColor: '#B024F2',
-                            },
+                        '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#B024F2',
+                        },
                     }}
                     value={searchInput}
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => {

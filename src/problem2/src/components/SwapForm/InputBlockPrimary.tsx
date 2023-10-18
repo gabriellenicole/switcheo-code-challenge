@@ -14,10 +14,7 @@ interface InputBlockProps {
     handleChangeToken: () => void
 }
 
-export default function InputBlockPrimary({
-    tokenName,
-    handleChangeToken,
-}: InputBlockProps) {
+export default function InputBlockPrimary({ tokenName, handleChangeToken }: InputBlockProps) {
     // primary state
     const tokenInput = useTokenPrimaryStore((state) => state.tokenInput)
     const tokenPrice = useTokenPrimaryStore((state) => state.tokenPrice)
@@ -27,21 +24,11 @@ export default function InputBlockPrimary({
     const setTokenInput = useTokenPrimaryStore((state) => state.setTokenInput)
 
     // secondary state
-    const tokenInputSecondary = useTokenSecondaryStore(
-        (state) => state.tokenInput
-    )
-    const tokenNameSecondary = useTokenSecondaryStore(
-        (state) => state.tokenName
-    )
-    const setTokenPriceSecondary = useTokenSecondaryStore(
-        (state) => state.setTokenPrice
-    )
-    const setTokenInputSecondary = useTokenSecondaryStore(
-        (state) => state.setTokenInput
-    )
-    const setLoadingSecondary = useTokenSecondaryStore(
-        (state) => state.setIsLoading
-    )
+    const tokenInputSecondary = useTokenSecondaryStore((state) => state.tokenInput)
+    const tokenNameSecondary = useTokenSecondaryStore((state) => state.tokenName)
+    const setTokenPriceSecondary = useTokenSecondaryStore((state) => state.setTokenPrice)
+    const setTokenInputSecondary = useTokenSecondaryStore((state) => state.setTokenInput)
+    const setLoadingSecondary = useTokenSecondaryStore((state) => state.setIsLoading)
 
     // general state
     const focusToken = useTokenListStore((state) => state.focusToken)
@@ -66,14 +53,10 @@ export default function InputBlockPrimary({
                         exchangeRateData
                     )} ${tokenNameSecondary}`
                 )
-                setTokenInputSecondary(
-                    formatDecimal(Number(input) * exchangeRateData, 5)
-                )
+                setTokenInputSecondary(formatDecimal(Number(input) * exchangeRateData, 5))
                 const priceUSD = await getTokenPriceAPI(tokenNameSecondary)
                 setTokenPriceSecondary(
-                    Number(
-                        formatDecimal(Number(tokenInputSecondary) * priceUSD)
-                    )
+                    Number(formatDecimal(Number(tokenInputSecondary) * priceUSD))
                 )
             } catch (err) {
                 console.log(err)
@@ -116,8 +99,7 @@ export default function InputBlockPrimary({
     }, [tokenNamePrimary, tokenNameSecondary, tokenInput, focusToken])
 
     useEffect(() => {
-        if (tokenInput.length !== 0 && tokenNamePrimary !== '')
-            callbackGetPrice(Number(tokenInput))
+        if (tokenInput.length !== 0 && tokenNamePrimary !== '') callbackGetPrice(Number(tokenInput))
     }, [tokenInput, tokenNamePrimary])
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -203,12 +185,7 @@ export default function InputBlockPrimary({
             >
                 {isLoading ? (
                     <>
-                        <Skeleton
-                            variant='rounded'
-                            animation='wave'
-                            width={200}
-                            height={50}
-                        />
+                        <Skeleton variant='rounded' animation='wave' width={200} height={50} />
                         <Skeleton animation='wave' width={80} />
                     </>
                 ) : (

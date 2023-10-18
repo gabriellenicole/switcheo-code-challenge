@@ -10,17 +10,11 @@ interface SummaryProps {
 
 export default function Summary({ backToHome }: SummaryProps) {
     const tokenNamePrimary = useTokenPrimaryStore((state) => state.tokenName)
-    const tokenNameSecondary = useTokenSecondaryStore(
-        (state) => state.tokenName
-    )
+    const tokenNameSecondary = useTokenSecondaryStore((state) => state.tokenName)
     const tokenInputPrimary = useTokenPrimaryStore((state) => state.tokenInput)
-    const tokenInputSecondary = useTokenSecondaryStore(
-        (state) => state.tokenInput
-    )
+    const tokenInputSecondary = useTokenSecondaryStore((state) => state.tokenInput)
     const tokenPricePrimary = useTokenPrimaryStore((state) => state.tokenPrice)
-    const tokenPriceSecondary = useTokenSecondaryStore(
-        (state) => state.tokenPrice
-    )
+    const tokenPriceSecondary = useTokenSecondaryStore((state) => state.tokenPrice)
     const [isConfirmed, setIsConfirmed] = useState(false)
 
     const handleConfirm = () => {
@@ -86,10 +80,7 @@ export default function Summary({ backToHome }: SummaryProps) {
                 </Button>
             </Box>
             {isConfirmed && (
-                <Typography
-                    variant='body2'
-                    sx={{ textAlign: 'center', marginTop: 2 }}
-                >
+                <Typography variant='body2' sx={{ textAlign: 'center', marginTop: 2 }}>
                     <strong>Yay! Your swap is in progress</strong> <br />
                     Feel free to initiate another swap while we work on this one
                     <LinearProgress sx={{ marginY: 1 }} />

@@ -14,13 +14,9 @@ import Summary from './components/Summary.tsx'
 function App() {
     const setTokenList = useTokenListStore((state) => state.setTokenList)
     const tokenNamePrimary = useTokenPrimaryStore((state) => state.tokenName)
-    const tokenNameSecondary = useTokenSecondaryStore(
-        (state) => state.tokenName
-    )
+    const tokenNameSecondary = useTokenSecondaryStore((state) => state.tokenName)
     const tokenInputPrimary = useTokenPrimaryStore((state) => state.tokenInput)
-    const tokenInputSecondary = useTokenSecondaryStore(
-        (state) => state.tokenInput
-    )
+    const tokenInputSecondary = useTokenSecondaryStore((state) => state.tokenInput)
 
     const getTokenData = async () => {
         try {
